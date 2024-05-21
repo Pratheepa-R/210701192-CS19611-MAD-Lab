@@ -1,0 +1,225 @@
+package com.example.ex05
+
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+
+    companion object {
+        private const val DATABASE_NAME = "student.db"
+        private const val DATABASE_VERSION = 1
+
+        const val TABLE_NAME = "Student"
+        const val COLUMN_REGISTER_NO = "RegisterNumber"
+        const val COLUMN_NAME = "Name"
+        const val COLUMN_CGPA = "CGPA"
+    }
+
+    override fun onCreate(db: SQLiteDatabase?) {
+        val createTable = ("CREATE TABLE $TABLE_NAME ("
+                + "$COLUMN_REGISTER_NO TEXT PRIMARY KEY, "
+                + "$COLUMN_NAME TEXT, "
+                + "$COLUMN_CGPA REAL)")
+        db?.execSQL(createTable)
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        onCreate(db)
+    }
+
+    fun insertStudent(registerNumber: String, name: String, cgpa: Double): Long {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put(COLUMN_REGISTER_NO, registerNumber)
+            put(COLUMN_NAME, name)
+            put(COLUMN_CGPA, cgpa)
+        }
+        return db.insert(TABLE_NAME, null, contentValues)
+    }
+
+    fun updateStudent(registerNumber: String, name: String, cgpa: Double): Int {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put(COLUMN_NAME, name)
+            put(COLUMN_CGPA, cgpa)
+        }
+        return db.update(TABLE_NAME, contentValues, "$COLUMN_REGISTER_NO = ?", arrayOf(registerNumber))
+    }
+
+    fun deleteStudent(registerNumber: String): Int {
+        val db = this.writableDatabase
+        return db.delete(TABLE_NAME, "$COLUMN_REGISTER_NO = ?", arrayOf(registerNumber))
+    }
+
+    fun getAllStudents(): List<Student> {
+        val studentList = mutableListOf<Student>()
+        val selectQuery = "SELECT * FROM $TABLE_NAME"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val registerNumber = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REGISTER_NO))
+                val name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME))
+                val cgpa = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_CGPA))
+                studentList.add(Student(registerNumber, name, cgpa))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return studentList
+    }
+}
+
+
+
+
+package com.example.ex05
+
+data class Student(
+    val registerNumber: String,
+    val name: String,
+    val cgpa: Double
+)
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextRegisterNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Register Number" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name" />
+
+    <EditText
+        android:id="@+id/editTextCGPA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="CGPA" />
+
+    <Button
+        android:id="@+id/buttonInsert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Insert" />
+
+    <Button
+        android:id="@+id/buttonUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update" />
+
+    <Button
+        android:id="@+id/buttonDelete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete" />
+
+    <Button
+        android:id="@+id/buttonView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View" />
+
+    <TextView
+        android:id="@+id/textViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp" />
+</LinearLayout>
+
+
+
+
+package com.example.ex05
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var editTextRegisterNumber: EditText
+    private lateinit var editTextName: EditText
+    private lateinit var editTextCGPA: EditText
+    private lateinit var textViewResult: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        dbHelper = DatabaseHelper(this)
+
+        editTextRegisterNumber = findViewById(R.id.editTextRegisterNumber)
+        editTextName = findViewById(R.id.editTextName)
+        editTextCGPA = findViewById(R.id.editTextCGPA)
+        textViewResult = findViewById(R.id.textViewResult)
+
+        findViewById<Button>(R.id.buttonInsert).setOnClickListener { insertStudent() }
+        findViewById<Button>(R.id.buttonUpdate).setOnClickListener { updateStudent() }
+        findViewById<Button>(R.id.buttonDelete).setOnClickListener { deleteStudent() }
+        findViewById<Button>(R.id.buttonView).setOnClickListener { viewStudents() }
+    }
+
+    private fun insertStudent() {
+        val registerNumber = editTextRegisterNumber.text.toString()
+        val name = editTextName.text.toString()
+        val cgpa = editTextCGPA.text.toString().toDouble()
+        val id = dbHelper.insertStudent(registerNumber, name, cgpa)
+        if (id > -1) {
+            textViewResult.text = "Student inserted successfully"
+        } else {
+            textViewResult.text = "Insert failed"
+        }
+    }
+
+    private fun updateStudent() {
+        val registerNumber = editTextRegisterNumber.text.toString()
+        val name = editTextName.text.toString()
+        val cgpa = editTextCGPA.text.toString().toDouble()
+        val count = dbHelper.updateStudent(registerNumber, name, cgpa)
+        if (count > 0) {
+            textViewResult.text = "Student updated successfully"
+        } else {
+            textViewResult.text = "Update failed"
+        }
+    }
+
+    private fun deleteStudent() {
+        val registerNumber = editTextRegisterNumber.text.toString()
+        val count = dbHelper.deleteStudent(registerNumber)
+        if (count > 0) {
+            textViewResult.text = "Student deleted successfully"
+        } else {
+            textViewResult.text = "Delete failed"
+        }
+    }
+
+    private fun viewStudents() {
+        val students = dbHelper.getAllStudents()
+        val stringBuilder = StringBuilder()
+        for (student in students) {
+            stringBuilder.append("Register No: ${student.registerNumber}, Name: ${student.name}, CGPA: ${student.cgpa}\n")
+        }
+        textViewResult.text = stringBuilder.toString()
+    }
+}
