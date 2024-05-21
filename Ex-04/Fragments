@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextRegisterNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Register No." />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name" />
+
+    <EditText
+        android:id="@+id/editTextDepartment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Department" />
+
+</LinearLayout>
+
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextSSLC"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="SSLC Marks" />
+
+    <EditText
+        android:id="@+id/editTextHSC"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="HSC Marks" />
+
+    <EditText
+        android:id="@+id/editTextUG"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="UG Marks" />
+
+</LinearLayout>
+
+
+
+
+
+package com.example.ex04
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+
+class BasicDetailsFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_basic_details, container, false)
+    }
+}
+
+
+
+
+
+
+
+package com.example.ex04
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+
+class MarkDetailsFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_mark_details, container, false)
+    }
+}
+
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/containerBasicDetails"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/containerMarkDetails"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
+
+
+
+
+
+
+package com.example.ex04
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // Load BasicDetailsFragment into containerBasicDetails
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.containerBasicDetails, BasicDetailsFragment())
+            .commit()
+
+        // Load MarkDetailsFragment into containerMarkDetails
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.containerMarkDetails, MarkDetailsFragment())
+            .commit()
+    }
+}
