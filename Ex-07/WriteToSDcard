@@ -1,0 +1,163 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.writetosdcard">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.WriteToSDCard">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+</manifest>
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextRegisterNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Register Number" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name" />
+
+    <EditText
+        android:id="@+id/editTextCGPA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="CGPA" />
+
+    <Button
+        android:id="@+id/buttonSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save to SD Card" />
+
+    <TextView
+        android:id="@+id/textViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:textSize="16sp"
+        android:textColor="#FF0000" />
+</LinearLayout>
+
+
+
+
+
+package com.example.ex07
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.os.Environment
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var editTextRegisterNumber: EditText
+    private lateinit var editTextName: EditText
+    private lateinit var editTextCGPA: EditText
+    private lateinit var textViewResult: TextView
+
+    companion object {
+        private const val REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        editTextRegisterNumber = findViewById(R.id.editTextRegisterNumber)
+        editTextName = findViewById(R.id.editTextName)
+        editTextCGPA = findViewById(R.id.editTextCGPA)
+        textViewResult = findViewById(R.id.textViewResult)
+
+        findViewById<Button>(R.id.buttonSave).setOnClickListener { saveToSDCard() }
+
+        // Request permission to write to external storage
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CODE_WRITE_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+    private fun saveToSDCard() {
+        val registerNumber = editTextRegisterNumber.text.toString()
+        val name = editTextName.text.toString()
+        val cgpa = editTextCGPA.text.toString()
+
+        if (registerNumber.isEmpty() || name.isEmpty() || cgpa.isEmpty()) {
+            textViewResult.text = "All fields are required."
+            return
+        }
+
+        if (!isExternalStorageWritable()) {
+            textViewResult.text = "External storage is not writable."
+            return
+        }
+
+        val file = File(getExternalFilesDir(null), "student_details.txt")
+
+        try {
+            FileWriter(file, true).use { writer ->
+                writer.write("Register Number: $registerNumber, Name: $name, CGPA: $cgpa\n")
+            }
+            textViewResult.text = "Saved to ${file.absolutePath}"
+        } catch (e: IOException) {
+            textViewResult.text = "Error writing to file: ${e.message}"
+        }
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                textViewResult.text = "Permission granted."
+            } else {
+                textViewResult.text = "Permission denied."
+            }
+        }
+    }
+}
