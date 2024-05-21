@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp"
+        android:inputType="none"
+        android:textSize="24sp"
+        android:gravity="right"
+        android:background="@android:color/transparent"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextDisplay"
+        android:rowCount="5"
+        android:columnCount="4"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Number Buttons -->
+        <Button android:id="@+id/button0" android:text="0"/>
+        <Button android:id="@+id/button1" android:text="1"/>
+        <Button android:id="@+id/button2" android:text="2"/>
+        <Button android:id="@+id/button3" android:text="3"/>
+        <Button android:id="@+id/button4" android:text="4"/>
+        <Button android:id="@+id/button5" android:text="5"/>
+        <Button android:id="@+id/button6" android:text="6"/>
+        <Button android:id="@+id/button7" android:text="7"/>
+        <Button android:id="@+id/button8" android:text="8"/>
+        <Button android:id="@+id/button9" android:text="9"/>
+
+        <!-- Decimal Point -->
+        <Button android:id="@+id/buttonDot" android:text="."/>
+
+        <!-- Operation Buttons -->
+        <Button android:id="@+id/buttonAdd" android:text="+"/>
+        <Button android:id="@+id/buttonSubtract" android:text="-"/>
+        <Button android:id="@+id/buttonMultiply" android:text="*"/>
+        <Button android:id="@+id/buttonDivide" android:text="/"/>
+        <Button android:id="@+id/buttonEquals" android:text="="/>
+        <Button android:id="@+id/buttonClear" android:text="C"/>
+    </GridLayout>
+</RelativeLayout>
+
+
+
+
+
+
+
+
+package com.example.ex02
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import android.widget.Button
+import android.widget.EditText
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var display: EditText
+    private var currentNumber = ""
+    private var operator = ""
+    private var firstNumber = ""
+    private var secondNumber = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        display = findViewById(R.id.editTextDisplay)
+
+        val buttonIds = listOf(
+            R.id.button0, R.id.button1, R.id.button2, R.id.button3, R.id.button4,
+            R.id.button5, R.id.button6, R.id.button7, R.id.button8, R.id.button9,
+            R.id.buttonDot, R.id.buttonAdd, R.id.buttonSubtract, R.id.buttonMultiply,
+            R.id.buttonDivide, R.id.buttonEquals, R.id.buttonClear
+        )
+
+        buttonIds.forEach { id ->
+            findViewById<Button>(id).setOnClickListener { onButtonClick(it as Button) }
+        }
+    }
+
+    private fun onButtonClick(button: Button) {
+        when (button.id) {
+            R.id.buttonClear -> clear()
+            R.id.buttonEquals -> calculate()
+            R.id.buttonAdd, R.id.buttonSubtract, R.id.buttonMultiply, R.id.buttonDivide -> setOperator(button.text.toString())
+            else -> appendNumber(button.text.toString())
+        }
+    }
+
+    private fun clear() {
+        display.text.clear()
+        currentNumber = ""
+        firstNumber = ""
+        secondNumber = ""
+        operator = ""
+    }
+
+    private fun calculate() {
+        if (operator.isNotEmpty() && currentNumber.isNotEmpty()) {
+            secondNumber = currentNumber
+            val result = when (operator) {
+                "+" -> firstNumber.toDouble() + secondNumber.toDouble()
+                "-" -> firstNumber.toDouble() - secondNumber.toDouble()
+                "*" -> firstNumber.toDouble() * secondNumber.toDouble()
+                "/" -> firstNumber.toDouble() / secondNumber.toDouble()
+                else -> 0.0
+            }
+            display.setText(result.toString())
+            currentNumber = result.toString()
+            operator = ""
+            firstNumber = ""
+            secondNumber = ""
+        }
+    }
+
+    private fun setOperator(op: String) {
+        if (currentNumber.isNotEmpty()) {
+            firstNumber = currentNumber
+            currentNumber = ""
+            operator = op
+        }
+    }
+
+    private fun appendNumber(number: String) {
+        currentNumber += number
+        display.setText(currentNumber)
+    }
+}
