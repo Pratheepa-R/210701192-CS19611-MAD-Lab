@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello, World!"
+        android:textSize="18sp"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/buttonChangeFontSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Font Size"
+        android:layout_below="@id/textView"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/buttonChangeFontColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Font Color"
+        android:layout_below="@id/buttonChangeFontSize"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/buttonChangeBackgroundColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Background Color"
+        android:layout_below="@id/buttonChangeFontColor"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>
+
+
+
+
+package com.example.ex01
+
+import android.graphics.Color
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import android.widget.Button
+import android.widget.RelativeLayout
+import android.widget.TextView
+import kotlin.random.Random
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var rootLayout: RelativeLayout
+    private lateinit var textView: TextView
+    private lateinit var buttonChangeFontSize: Button
+    private lateinit var buttonChangeFontColor: Button
+    private lateinit var buttonChangeBackgroundColor: Button
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // Initialize the views
+        rootLayout = findViewById(R.id.rootLayout)
+        textView = findViewById(R.id.textView)
+        buttonChangeFontSize = findViewById(R.id.buttonChangeFontSize)
+        buttonChangeFontColor = findViewById(R.id.buttonChangeFontColor)
+        buttonChangeBackgroundColor = findViewById(R.id.buttonChangeBackgroundColor)
+
+        buttonChangeFontSize.setOnClickListener {
+            // Change the font size
+            val newSize = Random.nextInt(14, 30) // Random size between 14sp and 30sp
+            textView.textSize = newSize.toFloat()
+        }
+
+        buttonChangeFontColor.setOnClickListener {
+            // Change the font color
+            val newColor = Color.rgb(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            textView.setTextColor(newColor)
+        }
+
+        buttonChangeBackgroundColor.setOnClickListener {
+            // Change the background color of the screen (root layout)
+            val newBackgroundColor = Color.rgb(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+            rootLayout.setBackgroundColor(newBackgroundColor)
+        }
+    }
+}
+
