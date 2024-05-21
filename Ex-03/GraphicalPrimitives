@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <FrameLayout
+        android:id="@+id/drawingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"/>
+
+</RelativeLayout>
+
+
+
+package com.example.ex03
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val drawingContainer=findViewById<FrameLayout>(R.id.drawingContainer)
+        val customView = CustomView(this)
+        drawingContainer.addView(customView)
+    }
+
+    private class CustomView(context: Context) : View(context) {
+        private val paint: Paint = Paint().apply {
+            color = Color.BLACK
+            style = Paint.Style.STROKE
+            strokeWidth = 5f
+        }
+
+        override fun onDraw(canvas: Canvas) {
+            super.onDraw(canvas)
+
+            // Draw a line
+            canvas.drawLine(50f, 50f, 200f, 50f, paint)
+
+            // Draw a circle
+            canvas.drawCircle(150f, 150f, 50f, paint)
+
+            // Draw a rectangle
+            canvas.drawRect(50f, 250f, 200f, 400f, paint)
+
+            // Draw a square
+            canvas.drawRect(50f, 450f, 800f, 800f, paint)
+        }
+    }
+}
