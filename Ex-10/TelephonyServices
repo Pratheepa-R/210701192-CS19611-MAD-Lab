@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Ex10"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+</manifest>
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Phone Number: "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewNetworkOperator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Network Operator: "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewSimState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SIM State: "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewDeviceId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Device ID: "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewSubscriberId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subscriber ID: "
+            android:textSize="18sp" />
+
+        <!-- Add more TextViews to display other information as needed -->
+
+    </LinearLayout>
+</ScrollView>
+
+
+
+
+
+package com.example.ex10
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.telephony.TelephonyManager
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var telephonyManager: TelephonyManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_PHONE_STATE),
+                1
+            )
+        } else {
+            displayTelephonyInfo()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            displayTelephonyInfo()
+        }
+    }
+
+    private fun displayTelephonyInfo() {
+        val phoneNumber = telephonyManager.line1Number
+        val networkOperator = telephonyManager.networkOperatorName
+        val simState = when (telephonyManager.simState) {
+            TelephonyManager.SIM_STATE_READY -> "Ready"
+            TelephonyManager.SIM_STATE_ABSENT -> "Absent"
+            TelephonyManager.SIM_STATE_PIN_REQUIRED -> "PIN Required"
+            TelephonyManager.SIM_STATE_PUK_REQUIRED -> "PUK Required"
+            TelephonyManager.SIM_STATE_NETWORK_LOCKED -> "Network Locked"
+            else -> "Unknown"
+        }
+        val deviceId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            telephonyManager.imei
+        } else {
+            @Suppress("DEPRECATION")
+            telephonyManager.deviceId
+        }
+        val subscriberId = telephonyManager.subscriberId
+
+        findViewById<TextView>(R.id.textViewPhoneNumber).text = "Phone Number: $phoneNumber"
+        findViewById<TextView>(R.id.textViewNetworkOperator).text = "Network Operator: $networkOperator"
+        findViewById<TextView>(R.id.textViewSimState).text = "SIM State: $simState"
+        findViewById<TextView>(R.id.textViewDeviceId).text = "Device ID: $deviceId"
+        findViewById<TextView>(R.id.textViewSubscriberId).text = "Subscriber ID: $subscriberId"
+    }
+}
