@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/editTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter text to speak"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        android:gravity="top"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/buttonSpeak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Speak"
+        android:layout_below="@id/editTextInput"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
+
+
+
+
+
+
+package com.example.ex13
+
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.util.Locale
+
+class MainActivity : AppCompatActivity(), OnInitListener {
+
+    private lateinit var editTextInput: EditText
+    private lateinit var buttonSpeak: Button
+    private lateinit var tts: TextToSpeech
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        editTextInput = findViewById(R.id.editTextInput)
+        buttonSpeak = findViewById(R.id.buttonSpeak)
+
+        // Initialize TextToSpeech
+        tts = TextToSpeech(this, this)
+
+        buttonSpeak.setOnClickListener {
+            speakOut()
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            // Set language to US English
+            val result = tts.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(this, "Language not supported", Toast.LENGTH_SHORT).show()
+            } else {
+                buttonSpeak.isEnabled = true
+            }
+        } else {
+            Toast.makeText(this, "Initialization failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun speakOut() {
+        val text = editTextInput.text.toString()
+        if (text.isNotEmpty()) {
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+        } else {
+            Toast.makeText(this, "Please enter some text", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroy() {
+        // Shutdown TTS when activity is destroyed
+        if (tts != null) {
+            tts.stop()
+            tts.shutdown()
+        }
+        super.onDestroy()
+    }
+}
