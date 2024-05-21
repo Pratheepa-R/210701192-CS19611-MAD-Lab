@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Username"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/editTextID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID (4-digit)"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/buttonValidate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Validate" />
+
+    <TextView
+        android:id="@+id/textViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:textSize="16sp"
+        android:textColor="#FF0000" />
+</LinearLayout>
+
+
+
+
+
+package com.example.ex06
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var editTextUsername: EditText
+    private lateinit var editTextID: EditText
+    private lateinit var textViewResult: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        editTextUsername = findViewById(R.id.editTextUsername)
+        editTextID = findViewById(R.id.editTextID)
+        textViewResult = findViewById(R.id.textViewResult)
+
+        findViewById<Button>(R.id.buttonValidate).setOnClickListener { validateInput() }
+    }
+
+    private fun validateInput() {
+        val username = editTextUsername.text.toString()
+        val id = editTextID.text.toString()
+
+        when {
+            username.isEmpty() -> {
+                textViewResult.text = "Username should not be empty"
+            }
+            id.isEmpty() -> {
+                textViewResult.text = "ID should not be empty"
+            }
+            !username.all { it.isLetter() } -> {
+                textViewResult.text = "Username should contain only alphabets"
+            }
+            !id.all { it.isDigit() } || id.length != 4 -> {
+                textViewResult.text = "ID should be a 4-digit number"
+            }
+            else -> {
+                textViewResult.text = "Validation Successful"
+            }
+        }
+    }
+}
